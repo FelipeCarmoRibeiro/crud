@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Usuários e Jogos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.delete {
+            background-color: #dc3545;
+        }
+
+        button.delete:hover {
+            background-color: #c82333;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table thead {
+            background-color: #f8f9fa;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Gerenciador de Usuários e Jogos</h1>
+
+        <div id="message" class="message"></div>
+
+        <!-- Seção de Usuários -->
+        <div class="section">
+            <h2>👤 Criar Usuário</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="userName">Nome:</label>
+                    <input type="text" id="userName" placeholder="Digite o nome">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email:</label>
+                    <input type="email" id="userEmail" placeholder="Digite o email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="userPassword">Senha:</label>
+                <input type="password" id="userPassword" placeholder="Digite a senha">
+            </div>
+            <button onclick="criarUsuario()">Criar Usuário</button>
+        </div>
+
+        <!-- Seção de Jogos -->
+        <div class="section">
+            <h2>🎯 Criar Jogo</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="gameTitle">Título:</label>
+                    <input type="text" id="gameTitle" placeholder="Digite o título do jogo">
+                </div>
+                <div class="form-group">
+                    <label for="gamePrice">Preço:</label>
+                    <input type="number" id="gamePrice" placeholder="Digite o preço" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="gameOwner">Proprietário:</label>
+                <select id="gameOwner">
+                    <option value="">Selecione um usuário</option>
+                </select>
+            </div>
+            <button onclick="criarJogo()">Criar Jogo</button>
+        </div>
+
+        <!-- Listagem de Usuários -->
+        <div class="section">
+            <h2>📋 Usuários</h2>
+            <button onclick="listarUsuarios()">Atualizar Lista</button>
+            <table id="usuariosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="usuariosBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Listagem de Jogos -->
+        <div class="section">
+            <h2>🎮 Jogos</h2>
+            <button onclick="listarJogos()">Atualizar Lista</button>
+            <table id="jogosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Preço</th>
+                        <th>Proprietário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="jogosBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5000";
+
+        function mostrarMensagem(msg, tipo) {
+            const messageDiv = document.getElementById("message");
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${tipo}`;
+            messageDiv.style.display = "block";
+            setTimeout(() => {
+                messageDiv.style.display = "none";
+            }, 3000);
+        }
+
+        async function criarUsuario() {
+            const name = document.getElementById("userName").value;
+            const email = document.getElementById("userEmail").value;
+            const password = document.getElementById("userPassword").value;
+
+            if (!name || !email || !password) {
+                mostrarMensagem("Preencha todos os campos!", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await response.json();
+                mostrarMensagem("Usuário criado com sucesso!", "success");
+                document.getElementById("userName").value = "";
+                document.getElementById("userEmail").value = "";
+                document.getElementById("userPassword").value = "";
+                listarUsuarios();
+            } catch (error) {
+                mostrarMensagem("Erro ao criar usuário!", "error");
+            }
+        }
+
+        async function criarJogo() {
+            const title = document.getElementById("gameTitle").value;
+            const price = document.getElementById("gamePrice").value;
+            const owner = document.getElementById("gameOwner").value;
+
+            if (!title || !price || !owner) {
+                mostrarMensagem("Preencha todos os campos!", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/games`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, price: parseFloat(price), owner: parseInt(owner) })
+                });
+                const data = await response.json();
+                mostrarMensagem("Jogo criado com sucesso!", "success");
+                document.getElementById("gameTitle").value = "";
+                document.getElementById("gamePrice").value = "";
+                document.getElementById("gameOwner").value = "";
+                listarJogos();
+            } catch (error) {
+                mostrarMensagem("Erro ao criar jogo!", "error");
+            }
+        }
+
+        async function listarUsuarios() {
+            try {
+                const response = await fetch(`${API_URL}/users`);
+                const usuarios = await response.json();
+                const tbody = document.getElementById("usuariosBody");
+                tbody.innerHTML = "";
+
+                usuarios.forEach(user => {
+                    const row = `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                <button class="delete" onclick="deletarUsuario(${user.id})">Deletar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                // Atualizar select de proprietários
+                const select = document.getElementById("gameOwner");
+                select.innerHTML = '<option value="">Selecione um usuário</option>';
+                usuarios.forEach(user => {
+                    select.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+                });
+            } catch (error) {
+                mostrarMensagem("Erro ao listar usuários!", "error");
+            }
+        }
+
+        async function listarJogos() {
+            try {
+                const response = await fetch(`${API_URL}/games`);
+                const jogos = await response.json();
+                const tbody = document.getElementById("jogosBody");
+                tbody.innerHTML = "";
+
+                jogos.forEach(game => {
+                    const row = `
+                        <tr>
+                            <td>${game.id}</td>
+                            <td>${game.title}</td>
+                            <td>R$ ${parseFloat(game.price).toFixed(2)}</td>
+                            <td>${game.owner}</td>
+                            <td>
+                                <button class="delete" onclick="deletarJogo(${game.id})">Deletar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                mostrarMensagem("Erro ao listar jogos!", "error");
+            }
+        }
+
+        async function deletarUsuario(id) {
+            if (confirm("Tem certeza que deseja deletar este usuário?")) {
+                try {
+                    await fetch(`${API_URL}/users/${id}`, { method: "DELETE" });
+                    mostrarMensagem("Usuário deletado!", "success");
+                    listarUsuarios();
+                } catch (error) {
+                    mostrarMensagem("Erro ao deletar usuário!", "error");
+                }
+            }
+        }
+
+        async function deletarJogo(id) {
+            if (confirm("Tem certeza que deseja deletar este jogo?")) {
+                try {
+                    await fetch(`${API_URL}/games/${id}`, { method: "DELETE" });
+                    mostrarMensagem("Jogo deletado!", "success");
+                    listarJogos();
+                } catch (error) {
+                    mostrarMensagem("Erro ao deletar jogo!", "error");
+                }
+            }
+        }
+
+        // Carregar dados ao abrir a página
+        window.onload = () => {
+            listarUsuarios();
+            listarJogos();
+        };
+    </script>
+</body>
+</html>
+
